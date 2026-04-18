@@ -23,7 +23,7 @@ export function useLogin() {
       api.post<AuthUser>('/auth/login', data).then((r) => r.data),
     onSuccess: (user) => {
       setUser(user)
-      navigate('/profile')
+      navigate('/market')
     },
   })
 }
