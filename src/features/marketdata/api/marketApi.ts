@@ -12,7 +12,7 @@ export interface CoinPrice {
   lastUpdated: string
 }
 
-export function useTopCoins(limit = 20) {
+export function useTopCoins(limit = 250) {
   return useQuery({
     queryKey: ['market', 'coins', limit],
     queryFn: () =>
