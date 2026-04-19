@@ -58,9 +58,14 @@ function toRow(coin: CoinPrice, rank: number, livePrice?: number): CoinRow {
 function NameCell({ data }: ICellRendererParams<CoinRow>) {
   return (
     <div className="flex items-center gap-3 h-full py-1">
-      <div className="w-8 h-8 rounded-full bg-raised flex items-center justify-center text-xs font-bold text-accent flex-shrink-0">
-        {data!.symbol.slice(0, 2).toUpperCase()}
-      </div>
+      {data!.imageUrl
+        ? <img src={data!.imageUrl} alt={data!.symbol} className="w-8 h-8 rounded-full shrink-0" />
+        : (
+          <div className="w-8 h-8 rounded-full bg-raised flex items-center justify-center text-xs font-bold text-accent shrink-0">
+            {data!.symbol.slice(0, 2).toUpperCase()}
+          </div>
+        )
+      }
       <div className="min-w-0">
         <p className="text-sm font-medium text-white truncate leading-tight">{data!.name}</p>
         <p className="text-xs text-muted">{data!.symbol.toUpperCase()}</p>
@@ -74,8 +79,8 @@ function PriceCell({ data, value }: ICellRendererParams<CoinRow>) {
     <div className="flex items-center justify-end gap-2 h-full font-mono tabular-nums text-sm">
       <span className="text-white">{formatPrice(value)}</span>
       {data!.isLive
-        ? <Wifi size={12} className="text-accent flex-shrink-0" />
-        : <WifiOff size={12} className="text-muted flex-shrink-0" />
+        ? <Wifi size={12} className="text-accent shrink-0" />
+        : <WifiOff size={12} className="text-muted shrink-0" />
       }
     </div>
   )

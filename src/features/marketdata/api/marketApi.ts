@@ -10,6 +10,7 @@ export interface CoinPrice {
   marketCapUsd: number
   volume24h: number
   lastUpdated: string
+  imageUrl?: string
 }
 
 export function useTopCoins(limit = 250) {
