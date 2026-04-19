@@ -5,6 +5,7 @@ import { useRegister } from '../api/authApi'
 import Input from '../../../shared/components/Input'
 import Button from '../../../shared/components/Button'
 import Card from '../../../shared/components/Card'
+import IrisLogo from '../../../shared/components/IrisLogo'
 
 export default function RegisterPage() {
   const [username, setUsername] = useState('')
@@ -16,9 +17,10 @@ export default function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center px-4 bg-background">
       <div className="w-full max-w-sm">
 
-        <div className="mb-8 text-center">
+        <div className="mb-8 flex flex-col items-center gap-2">
+          <IrisLogo iconSize={48} showWordmark={false} />
           <h1 className="text-2xl font-bold tracking-tight text-accent">Iris</h1>
-          <p className="mt-2 text-sm text-muted">Create your account</p>
+          <p className="text-sm text-muted">Create your account</p>
         </div>
 
         <Card>

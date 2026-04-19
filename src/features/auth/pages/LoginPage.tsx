@@ -5,6 +5,7 @@ import { useLogin } from '../api/authApi'
 import Input from '../../../shared/components/Input'
 import Button from '../../../shared/components/Button'
 import Card from '../../../shared/components/Card'
+import IrisLogo from '../../../shared/components/IrisLogo'
 
 export default function LoginPage() {
   const [username, setUsername] = useState('')
@@ -15,9 +16,10 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center px-4 bg-background">
       <div className="w-full max-w-sm">
 
-        <div className="mb-8 text-center">
+        <div className="mb-8 flex flex-col items-center gap-2">
+          <IrisLogo iconSize={48} showWordmark={false} />
           <h1 className="text-2xl font-bold tracking-tight text-accent">Iris</h1>
-          <p className="mt-2 text-sm text-muted">Sign in to your account</p>
+          <p className="text-sm text-muted">Sign in to your account</p>
         </div>
 
         <Card>

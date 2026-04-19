@@ -1,8 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import ProtectedRoute from './ProtectedRoute'
+import AppLayout from './layout/AppLayout'
 import LoginPage from '../features/auth/pages/LoginPage'
 import RegisterPage from '../features/auth/pages/RegisterPage'
 import ProfilePage from '../features/auth/pages/ProfilePage'
-import ProtectedRoute from './ProtectedRoute'
+import MarketPage from '../features/marketdata/pages/MarketPage'
 
 export default function Router() {
   return (
@@ -10,12 +12,15 @@ export default function Router() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/profile" element={
-          <ProtectedRoute>
-            <ProfilePage />
-          </ProtectedRoute>
-        } />
-        <Route path="*" element={<Navigate to="/login" replace />} />
+
+        <Route element={<ProtectedRoute />}>
+          <Route element={<AppLayout />}>
+            <Route path="/market" element={<MarketPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+          </Route>
+        </Route>
+
+        <Route path="*" element={<Navigate to="/market" replace />} />
       </Routes>
     </BrowserRouter>
   )
