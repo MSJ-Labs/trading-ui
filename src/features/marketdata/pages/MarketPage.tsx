@@ -111,6 +111,76 @@ function formatLarge(n: number): string {
   return `$${n.toLocaleString('en-US')}`
 }
 
+// ── Stable grid config (module-level — new references on every render reset column state) ──
+
+const defaultColDef: ColDef<CoinRow> = { resizable: true, sortable: true }
+const pageSizeSelector = [25, 50, 100, 250]
+
+// ── Column definitions ──────────────────────────────────────────────────────
+
+const colDefs: ColDef<CoinRow>[] = [
+  {
+    field: 'rank',
+    headerName: '#',
+    width: 58,
+    sortable: false,
+    suppressMovable: true,
+    filter: false,
+  },
+  {
+    field: 'name',
+    headerName: 'Name',
+    flex: 2,
+    minWidth: 180,
+    cellRenderer: NameCell,
+    filter: 'agTextColumnFilter',
+    filterParams: { filterOptions: ['contains', 'startsWith'], maxNumConditions: 1 },
+  },
+  {
+    field: 'displayPrice',
+    headerName: 'Price',
+    flex: 1.5,
+    minWidth: 140,
+    cellRenderer: PriceCell,
+    enableCellChangeFlash: true,
+    type: 'rightAligned',
+    filter: 'agNumberColumnFilter',
+    filterParams: { filterOptions: ['greaterThan', 'lessThan', 'inRange'], maxNumConditions: 1 },
+  },
+  {
+    field: 'priceChangePercent24h',
+    headerName: '24h %',
+    flex: 1,
+    minWidth: 90,
+    cellRenderer: ChangeCell,
+    type: 'rightAligned',
+    filter: 'agNumberColumnFilter',
+    filterParams: { filterOptions: ['greaterThan', 'lessThan', 'inRange'], maxNumConditions: 1 },
+  },
+  {
+    field: 'marketCapUsd',
+    headerName: 'Market Cap',
+    flex: 1.5,
+    minWidth: 120,
+    valueFormatter: p => formatLarge(p.value),
+    type: 'rightAligned',
+    cellStyle: () => ({ color: '#9ca3af', fontSize: '13px', fontFamily: 'monospace' }),
+    filter: 'agNumberColumnFilter',
+    filterParams: { filterOptions: ['greaterThan', 'lessThan', 'inRange'], maxNumConditions: 1 },
+  },
+  {
+    field: 'volume24h',
+    headerName: 'Volume 24h',
+    flex: 1.5,
+    minWidth: 120,
+    valueFormatter: p => formatLarge(p.value),
+    type: 'rightAligned',
+    cellStyle: () => ({ color: '#9ca3af', fontSize: '13px', fontFamily: 'monospace' }),
+    filter: 'agNumberColumnFilter',
+    filterParams: { filterOptions: ['greaterThan', 'lessThan', 'inRange'], maxNumConditions: 1 },
+  },
+]
+
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function MarketPage() {
@@ -135,69 +205,6 @@ export default function MarketPage() {
   }, [livePrices, coins])
 
   const getRowId = useCallback((p: GetRowIdParams<CoinRow>) => p.data.coinId, [])
-
-  const colDefs = useMemo<ColDef<CoinRow>[]>(() => [
-    {
-      field: 'rank',
-      headerName: '#',
-      width: 58,
-      sortable: false,
-      suppressMovable: true,
-      filter: false,
-    },
-    {
-      field: 'name',
-      headerName: 'Name',
-      flex: 2,
-      minWidth: 180,
-      cellRenderer: NameCell,
-      filter: 'agTextColumnFilter',
-      filterParams: { filterOptions: ['contains', 'startsWith'], maxNumConditions: 1 },
-    },
-    {
-      field: 'displayPrice',
-      headerName: 'Price',
-      flex: 1.5,
-      minWidth: 140,
-      cellRenderer: PriceCell,
-      enableCellChangeFlash: true,
-      type: 'rightAligned',
-      filter: 'agNumberColumnFilter',
-      filterParams: { filterOptions: ['greaterThan', 'lessThan', 'inRange'], maxNumConditions: 1 },
-    },
-    {
-      field: 'priceChangePercent24h',
-      headerName: '24h %',
-      flex: 1,
-      minWidth: 90,
-      cellRenderer: ChangeCell,
-      type: 'rightAligned',
-      filter: 'agNumberColumnFilter',
-      filterParams: { filterOptions: ['greaterThan', 'lessThan', 'inRange'], maxNumConditions: 1 },
-    },
-    {
-      field: 'marketCapUsd',
-      headerName: 'Market Cap',
-      flex: 1.5,
-      minWidth: 120,
-      valueFormatter: p => formatLarge(p.value),
-      type: 'rightAligned',
-      cellStyle: () => ({ color: '#9ca3af', fontSize: '13px', fontFamily: 'monospace' }),
-      filter: 'agNumberColumnFilter',
-      filterParams: { filterOptions: ['greaterThan', 'lessThan', 'inRange'], maxNumConditions: 1 },
-    },
-    {
-      field: 'volume24h',
-      headerName: 'Volume 24h',
-      flex: 1.5,
-      minWidth: 120,
-      valueFormatter: p => formatLarge(p.value),
-      type: 'rightAligned',
-      cellStyle: () => ({ color: '#9ca3af', fontSize: '13px', fontFamily: 'monospace' }),
-      filter: 'agNumberColumnFilter',
-      filterParams: { filterOptions: ['greaterThan', 'lessThan', 'inRange'], maxNumConditions: 1 },
-    },
-  ], [])
 
   const liveCount = Object.keys(livePrices).length
 
@@ -240,7 +247,7 @@ export default function MarketPage() {
             columnDefs={colDefs}
             getRowId={getRowId}
             onGridReady={p => { gridApiRef.current = p.api }}
-            defaultColDef={{ resizable: true, sortable: true }}
+            defaultColDef={defaultColDef}
             suppressCellFocus
             rowHeight={52}
             headerHeight={40}
@@ -248,7 +255,7 @@ export default function MarketPage() {
             columnMenu="legacy"
             pagination
             paginationPageSize={50}
-            paginationPageSizeSelector={[25, 50, 100, 250]}
+            paginationPageSizeSelector={pageSizeSelector}
           />
         </div>
       )}
