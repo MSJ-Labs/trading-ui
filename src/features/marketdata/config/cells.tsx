@@ -27,6 +27,9 @@ export function NameCell({ data }: ICellRendererParams<CoinRow>) {
 }
 
 export function PriceCell({ data, value }: ICellRendererParams<CoinRow>) {
+  if (value == null) {
+    return <div className="flex items-center justify-end h-full text-muted">—</div>
+  }
   return (
     <div className="flex items-center justify-end gap-2 h-full font-mono tabular-nums text-sm">
       <span className="text-white">{formatPrice(value)}</span>
