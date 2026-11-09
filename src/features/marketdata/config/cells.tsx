@@ -4,7 +4,7 @@ import { type CoinRow } from './columns'
 
 function formatPrice(n: number): string {
   if (n >= 1) return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 })
-  return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 4, maximumFractionDigits: 6 })
+  return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 4, maximumFractionDigits: 8 })
 }
 
 export function NameCell({ data }: ICellRendererParams<CoinRow>) {
