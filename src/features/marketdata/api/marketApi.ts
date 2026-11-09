@@ -5,11 +5,12 @@ export interface CoinPrice {
   coinId: string
   symbol: string
   name: string
-  priceUsd: number
-  priceChangePercent24h: number
-  marketCapUsd: number
-  volume24h: number
-  lastUpdated: string
+  // Price fields are null when the cached price expired (coin still ranked, price unknown)
+  priceUsd: number | null
+  priceChangePercent24h: number | null
+  marketCapUsd: number | null
+  volume24h: number | null
+  lastUpdated: string | null
   imageUrl?: string
 }
 

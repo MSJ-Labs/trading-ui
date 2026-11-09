@@ -4,12 +4,12 @@ import { NameCell, PriceCell, ChangeCell } from './cells'
 
 export interface CoinRow extends CoinPrice {
   rank: number
-  displayPrice: number
+  displayPrice: number | null
   isLive: boolean
 }
 
-function formatLarge(n: number): string {
-  if (!n) return '—'
+function formatLarge(n: number | null | undefined): string {
+  if (n == null || n === 0) return '—'
   if (n >= 1e12) return `$${(n / 1e12).toFixed(2)}T`
   if (n >= 1e9)  return `$${(n / 1e9).toFixed(2)}B`
   if (n >= 1e6)  return `$${(n / 1e6).toFixed(2)}M`
