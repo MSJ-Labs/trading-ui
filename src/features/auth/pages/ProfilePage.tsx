@@ -1,4 +1,4 @@
-import { User, Mail, Shield, Calendar, Clock } from 'lucide-react'
+import { User, Mail, Shield } from 'lucide-react'
 import { useMe } from '../api/authApi'
 import Card from '../../../shared/components/Card'
 
@@ -27,31 +27,30 @@ export default function ProfilePage() {
             <Row
               icon={<User size={14} />}
               label="Full name"
-              value={user?.firstName || user?.lastName
-                ? `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim() : '—'}
+              value={user?.name
+                || `${user?.givenName ?? ''} ${user?.familyName ?? ''}`.trim()
+                || '—'}
             />
             <Row
               icon={<Mail size={14} />}
               label="Email"
               value={user?.email ?? '—'}
             />
-            <Row
-              icon={<Shield size={14} />}
-              label="Roles"
-              value={user?.roles?.join(', ') ?? '—'}
-            />
-            <Row
-              icon={<Calendar size={14} />}
-              label="Member since"
-              value={user?.createdAt
-                ? new Date(user.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'}
-            />
-            <Row
-              icon={<Clock size={14} />}
-              label="Last login"
-              value={user?.lastLoginAt
-                ? new Date(user.lastLoginAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'}
-            />
+            <div className="space-y-2 text-sm">
+              <span className="text-muted flex items-center gap-1.5">
+                <Shield size={14} />Roles
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {user?.roles?.length ? user.roles.map((role) => (
+                  <span
+                    key={role}
+                    className="px-2 py-0.5 rounded-md border border-line bg-raised text-xs text-white break-all"
+                  >
+                    {role}
+                  </span>
+                )) : <span className="text-white">—</span>}
+              </div>
+            </div>
           </div>
         </div>
       </Card>

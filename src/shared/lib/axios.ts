@@ -1,62 +1,39 @@
-import axios, { type InternalAxiosRequestConfig } from 'axios'
+import axios from 'axios'
 
-const api = axios.create({
-  baseURL: '/api/v1',
-  withCredentials: true,
-})
+const LOGIN_URL = '/oauth2/authorization/keycloak'
 
-// Tracks configs that have already been retried once to prevent infinite loops
-const retried = new WeakSet<InternalAxiosRequestConfig>()
+function createClient(baseURL: string) {
+  const client = axios.create({
+    baseURL,
+    withCredentials: true,
+    // Spring Security csrf.spa(): token in the XSRF-TOKEN cookie, echoed in X-XSRF-TOKEN.
+    // These are axios defaults, set explicitly to document the contract with the BFF.
+    xsrfCookieName: 'XSRF-TOKEN',
+    xsrfHeaderName: 'X-XSRF-TOKEN',
+  })
 
-// Queues requests that arrived while a refresh is already in flight
-let isRefreshing = false
-let waiters: Array<(succeeded: boolean) => void> = []
-
-api.interceptors.response.use(
-  res => res,
-  async (err) => {
-    const config: InternalAxiosRequestConfig = err.config
-
-    // Not a 401, or no config, or the failed request was the refresh itself → give up
-    if (
-      err.response?.status !== 401 ||
-      !config ||
-      config.url === '/auth/refresh'
-    ) {
+  // No session (or expired / closed by backchannel logout): the BFF answers 401,
+  // we start the Keycloak login. Full-page navigation, not an XHR: it is a 302 chain.
+  client.interceptors.response.use(
+    (res) => res,
+    (err) => {
+      if (err.response?.status === 401) {
+        window.location.assign(LOGIN_URL)
+      }
       return Promise.reject(err)
-    }
+    },
+  )
 
-    // Already retried this exact request → don't loop
-    if (retried.has(config)) {
-      window.location.href = '/login'
-      return Promise.reject(err)
-    }
+  return client
+}
 
-    // Another refresh is already in flight — queue this request until it resolves
-    if (isRefreshing) {
-      return new Promise((resolve, reject) => {
-        waiters.push((succeeded) =>
-          succeeded ? resolve(api(config)) : reject(err)
-        )
-      })
-    }
+// Business API, routed by the BFF to trading-core (TokenRelay).
+const api = createClient('/api/v1')
 
-    retried.add(config)
-    isRefreshing = true
+// BFF's own endpoints (/bff/user...), not forwarded to a service.
+export const bff = createClient('/bff')
 
-    try {
-      await api.post('/auth/refresh')
-      waiters.forEach(w => w(true))
-      return api(config)
-    } catch {
-      waiters.forEach(w => w(false))
-      window.location.href = '/login'
-      return Promise.reject(err)
-    } finally {
-      waiters = []
-      isRefreshing = false
-    }
-  }
-)
+// Spring Security's own endpoints at the BFF root (POST /logout).
+export const root = createClient('')
 
 export default api

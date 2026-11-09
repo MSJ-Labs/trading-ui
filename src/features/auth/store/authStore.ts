@@ -1,15 +1,15 @@
 import { create } from 'zustand'
 
+/** Mirror of the BFF's UserResponse (GET /bff/user). Identity claims and realm roles, never a token. */
 export interface AuthUser {
-  id: string
+  sub: string
   username: string
-  email: string
-  firstName?: string
-  lastName?: string
-  fullName?: string
+  name?: string
+  givenName?: string
+  familyName?: string
+  email?: string
+  emailVerified?: boolean
   roles: string[]
-  createdAt?: string
-  lastLoginAt?: string
 }
 
 interface AuthState {

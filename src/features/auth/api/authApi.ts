@@ -1,42 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
-import api from '../../../shared/lib/axios'
+import { bff, root } from '../../../shared/lib/axios'
 import { useAuthStore, type AuthUser } from '../store/authStore'
 
-interface LoginRequest {
-  username: string
-  password: string
-}
-
-interface RegisterRequest {
-  username: string
-  email: string
-  password: string
-}
-
-export function useLogin() {
-  const setUser = useAuthStore((s) => s.setUser)
-  const navigate = useNavigate()
-
-  return useMutation({
-    mutationFn: (data: LoginRequest) =>
-      api.post<AuthUser>('/auth/login', data).then((r) => r.data),
-    onSuccess: (user) => {
-      setUser(user)
-      navigate('/market')
-    },
-  })
-}
-
-export function useRegister() {
-  const navigate = useNavigate()
-
-  return useMutation({
-    mutationFn: (data: RegisterRequest) =>
-      api.post<AuthUser>('/auth/register', data).then((r) => r.data),
-    onSuccess: () => navigate('/login'),
-  })
-}
+/** Login and registration are Keycloak's pages: nothing to implement here. */
 
 export function useMe() {
   const setUser = useAuthStore((s) => s.setUser)
@@ -44,25 +10,35 @@ export function useMe() {
   return useQuery({
     queryKey: ['me'],
     queryFn: () =>
-      api.get<AuthUser>('/users/me').then((r) => {
+      bff.get<AuthUser>('/user').then((r) => {
         setUser(r.data)
         return r.data
       }),
     retry: false,
+    // a 401 triggers the Keycloak login (axios interceptor): never retry or refetch in a loop
+    refetchOnWindowFocus: false,
   })
 }
 
+interface LogoutResponse {
+  logoutUrl: string
+}
+
+/**
+ * POST /logout (with the XSRF header) ends the BFF session and answers with the Keycloak
+ * end-session URL. We then navigate to it (full page): it closes the SSO session and sends
+ * the browser back to the front. An XHR cannot follow that cross-origin redirect itself.
+ */
 export function useLogout() {
   const setUser = useAuthStore((s) => s.setUser)
   const queryClient = useQueryClient()
-  const navigate = useNavigate()
 
   return useMutation({
-    mutationFn: () => api.post('/auth/logout'),
-    onSuccess: () => {
+    mutationFn: () => root.post<LogoutResponse>('/logout').then((r) => r.data),
+    onSuccess: ({ logoutUrl }) => {
       setUser(null)
       queryClient.clear()
-      navigate('/login')
+      window.location.assign(logoutUrl)
     },
   })
 }
